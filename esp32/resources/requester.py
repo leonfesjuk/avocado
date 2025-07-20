@@ -26,7 +26,7 @@ class Request:
         if not self._ensure_wifi_connected():
             return None 
 
-        print(f"GET: {self.url}")
+        print(f"GET: {url}")
         response = None 
         try:
             response = urequests.get(url, headers=headers)

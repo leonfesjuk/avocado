@@ -8,7 +8,7 @@ from resources.requester import Request
 from resources.config import BASE_URL_FASTAPI
 
 TIMESTAMP_URL = BASE_URL_FASTAPI + "/get_time"
-rtc = RTC()
+
 
 rtc = RTC()
 
