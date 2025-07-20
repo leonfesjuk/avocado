@@ -19,7 +19,7 @@ origins = [
 
 class ControllerData(BaseModel):
     controller_id: int
-    humidity: int
+    humidity: float
     water_tank_fullness: int
     water_pump_status: str
     water_pump_working_time: int
