@@ -3,7 +3,7 @@ import os
 
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-from pyparsing import Optional
+from typing import Optional
 from config.settings import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
