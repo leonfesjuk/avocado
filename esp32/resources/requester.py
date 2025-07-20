@@ -6,10 +6,10 @@ from resources.wificonnector import WifiConnection
 
 
 class Request:
-    def __init__(self , data = None, url = None):
+    def __init__(self , url = None):
         self.wifi_connector = WifiConnection()
         self.wlan_obj = network.WLAN(network.STA_IF)
-        self.data = data
+        
         self.url = url
 
     def _ensure_wifi_connected(self):
@@ -39,7 +39,7 @@ class Request:
             return None
         
 
-    def post(self,  headers=None):
+    def post(self,  headers=None, data=None):
         
         if not self._ensure_wifi_connected():
             return None
@@ -48,10 +48,10 @@ class Request:
         response = None 
         try:
             
-            if headers is None and self.data is not None:
+            if headers is None and data is not None:
                 headers = {'Content-Type': 'application/json'}
 
-            response = urequests.post(self.url, json=self.data, headers=headers)
+            response = urequests.post(self.url, json=data, headers=headers)
             print("Satus POST request:", response.status_code)
             print("Request data POST:")
             if response.status_code == 200 and 'application/json' in response.headers.get('Content-Type', ''):

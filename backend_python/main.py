@@ -2,6 +2,7 @@ import datetime
 import os
 
 from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
 from config.settings import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,6 +15,28 @@ origins = [
     settings.base_api_address,
     "*"
 ]
+
+class ControllerData(BaseModel):
+    controller_id: int
+    humidity: int
+    water_tank_fullness: int
+    water_pump_status: str
+    water_pump_working_time: int
+    info: str = None
+
+
+
+
+
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins, 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/get_time")
 async def get_current_time():
@@ -28,13 +51,13 @@ async def get_current_time():
         "unixtime": int(now_utc.timestamp())
     }
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins, 
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
+@app.post("/post_data")
+async def post_data(data: ControllerData):
+    if not data.controller_id or not data.humidity or not data.water_tank_fullness:
+        return {"error": "Missing required fields in the data."}
+    print(f"Received data: {data}")
+    return data
 
 
 @app.get("/")

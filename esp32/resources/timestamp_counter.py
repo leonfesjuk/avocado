@@ -1,3 +1,4 @@
+from os import utime
 import time
 import network
 import urequests
@@ -41,3 +42,14 @@ def get_time_and_update_rtc():
     finally:
             if response:
                 response.close() 
+
+def get_iso_timestamp_from_rtc():
+    t = utime.localtime()
+
+    if t[0] < 2020:
+        return None
+    
+    timestamp_str = "{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}".format(
+        t[0], t[1], t[2], t[3], t[4], t[5]
+    )
+    return timestamp_str
