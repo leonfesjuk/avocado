@@ -3,6 +3,7 @@ import os
 
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
+from pyparsing import Optional
 from config.settings import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,7 +23,7 @@ class ControllerData(BaseModel):
     water_tank_fullness: int
     water_pump_status: str
     water_pump_working_time: int
-    info: str = None
+    info: Optional[str] = None
 
 
 

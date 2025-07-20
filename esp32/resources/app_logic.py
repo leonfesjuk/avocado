@@ -3,7 +3,7 @@ from machine import Pin
 import time
 from resources.wificonnector import WifiConnection
 from resources.requester import Request
-import json
+import ujson as json
 from resources.oled import oled_init, text_show_regular
 from resources.moisture import MoistureSensor
 from resources.reley import Relay
@@ -82,7 +82,7 @@ def app_logic(
                     print("Failed to send data or no response received.")
             except Exception as e:
                 print("Error during POST request:", e)
-
+            print("Data sent:", json.dumps(data))
             last_run_base_foo = current_time
         time.sleep_ms(100)
 
