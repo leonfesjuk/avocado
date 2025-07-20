@@ -82,7 +82,7 @@ def app_logic(
                     print("Failed to send data or no response received.")
             except Exception as e:
                 print("Error during POST request:", e)
-            print("Data sent:", json.dumps(data, indent=4))
+            
             last_run_base_foo = current_time
         time.sleep_ms(100)
 

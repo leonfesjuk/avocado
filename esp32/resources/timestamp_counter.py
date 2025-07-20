@@ -50,8 +50,12 @@ def get_time_and_update_rtc():
         print(f"Error during time synchronization request: {e}")
         return False
     finally:
+        try:
             if response:
-                response.close() 
+                response.close()
+        except Exception as e:
+            print("Error closing response (custom):", e)
+                
 
 def get_iso_timestamp_from_rtc():
     t = utime.localtime()

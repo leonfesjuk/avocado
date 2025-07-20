@@ -37,7 +37,9 @@ class Request:
         except Exception as e:
             print("GET error:", e)
             return None
-        
+        finally: 
+            if response is not None and hasattr(response, 'close'):
+                response.close()
 
     def post(self,  headers=None, data=None):
         
@@ -64,5 +66,9 @@ class Request:
             print("Error POST:", e)
             return None
         finally:
-            if response:
-                response.close()
+            try:
+                if response:
+                    response.close()
+            except Exception as e:
+                print("Error closing response (custom):", e)
+                

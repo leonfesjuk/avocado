@@ -55,8 +55,6 @@ async def get_current_time():
 
 @app.post("/post_data")
 async def post_data(data: ControllerData):
-    if not data.controller_id or not data.humidity or not data.water_tank_fullness:
-        return {"error": "Missing required fields in the data."}
     print(f"Received data: {data}")
     return data
 
