@@ -37,9 +37,7 @@ class Request:
         except Exception as e:
             print("GET error:", e)
             return None
-        finally:
-            if response:
-                response.close() 
+        
 
     def post(self,  headers=None):
         
