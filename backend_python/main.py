@@ -29,7 +29,7 @@ async def test():
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Hello FastAPI</title>
+        <title>Hello FastAPI!!!!!!!!!!!!!!!</title>
     </head>
     <body>
         <h1>Hello, World from FastAPI!</h1>
