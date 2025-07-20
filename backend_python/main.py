@@ -1,3 +1,4 @@
+import datetime
 import os
 
 from fastapi.responses import HTMLResponse
@@ -13,6 +14,19 @@ origins = [
     settings.base_api_address,
     "*"
 ]
+
+@app.get("/get_time")
+async def get_current_time():
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+    return {
+        "year": now_utc.year,
+        "month": now_utc.month,
+        "day": now_utc.day,
+        "hour": now_utc.hour,
+        "minute": now_utc.minute,
+        "second": now_utc.second,
+        "unixtime": int(now_utc.timestamp())
+    }
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,3 +52,4 @@ async def test():
     </html>
     """
     return HTMLResponse(content=html_content)
+
