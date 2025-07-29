@@ -7,3 +7,6 @@ asgiref
 sqlalchemy
 pandas
 asgi-tools
+sqlalchemy
+func_timeout
+psycopg2-binary

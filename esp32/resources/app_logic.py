@@ -16,11 +16,11 @@ def app_logic(
         max_fullness=100,
         min_moisture=60,
         max_moisture=80,
-        water_pump_working_time=1):
+        water_pump_working_time=1, base_interval = 6000):
 
     send_data_url = BASE_URL_FASTAPI + "/post_data"
-    # interval for actions in seconds
-    base_interval = 6000
+   
+    
     #initialize timer
     last_run_base_foo = time.ticks_ms()
 

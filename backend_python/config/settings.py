@@ -14,5 +14,5 @@ class Settings(BaseSettings):
     fastapi_api_key: str = Field(..., alias="FASTAPI_API_KEY")
     base_api_address: str = Field(..., alias="RENDER_EXTERNAL_HOSTNAME")
     database_url: str = Field(..., alias="DATABASE_URL")
-
+    
 settings = Settings()
