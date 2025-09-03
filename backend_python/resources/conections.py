@@ -50,7 +50,7 @@ temp_engine.dispose()
 
 
 
-add_humidity_data(controller_id=1, humidity_value=14)
+add_humidity_data(controller_id=1, humidity_value=44)
 
 x = humidity_read()
 print(x.head())
