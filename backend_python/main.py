@@ -4,8 +4,8 @@ import os
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import Optional
-from backend_python.resources.conections import add_humidity_data
-from backend_python.config.settings import settings
+from resources.conections import add_humidity_data
+from config.settings import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
