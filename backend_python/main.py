@@ -4,7 +4,8 @@ import os
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import Optional
-from config.settings import settings
+from backend_python.resources.conections import add_humidity_data
+from backend_python.config.settings import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -61,6 +62,9 @@ async def post_data(data: ControllerData):
 
 @app.get("/")
 async def test():
+
+    x = add_humidity_data(controller_id=1, humidity_value=44)
+    print(f"Data added to DB: {x}")
     html_content = """
     <!DOCTYPE html>
     <html>
