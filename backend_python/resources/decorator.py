@@ -5,7 +5,7 @@ from functools import wraps
 from func_timeout import func_timeout, FunctionTimedOut
 from dotenv import load_dotenv
 import os
-from backend_python.config.settings import settings
+from config.settings import settings
 from sqlalchemy.exc import OperationalError
 
 print("DEBUG: Decorator.py loaded and updated!")
@@ -54,7 +54,7 @@ def create_db_engine(sql_server=mysql_server, max_retries=5, retry_delay=1, time
     raise last_exception if last_exception else OperationalError("Failed to connect after multiple retries with unknown error.")
 
 
-def retry_on_operational_error(sql_server=mysql_server, max_retries=5, retry_delay=3, timeout=10, raise_on_failure=True):
+def retry_on_operational_error(sql_server=mysql_server, max_retries=5, retry_delay=3, timeout=10, raise_on_failure=False):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):

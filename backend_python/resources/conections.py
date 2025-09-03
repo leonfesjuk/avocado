@@ -4,8 +4,8 @@ from sqlalchemy import Column, Integer, String, Date, Float, DateTime
 from datetime import date, time, timedelta
 import pandas as pd
 
-from backend_python.resources.decorator import retry_on_operational_error, create_db_engine
-from backend_python.config.settings import settings
+from resources.decorator import retry_on_operational_error, create_db_engine
+from config.settings import settings
 
 Base = declarative_base()
 
