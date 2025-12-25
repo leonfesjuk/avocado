@@ -16,75 +16,91 @@ def app_logic(
         max_fullness=100,
         min_moisture=60,
         max_moisture=80,
-        water_pump_working_time=1, base_interval = 6000):
+        water_pump_working_time=1):
 
     send_data_url = BASE_URL_FASTAPI + "/post_data"
-   
     
-    #initialize timer
-    last_run_base_foo = time.ticks_ms()
+    # Timings in milliseconds
+    CHECK_INTERVAL = 20 * 60 * 1000  # 20 minutes
+    LOG_INTERVAL_COUNT = 6  # Log every 6th check (6 * 20 min = 2 hours)
 
-    #initialize  sensor/s
+    # State variables
+    last_check_time = time.ticks_ms()
+    check_counter = 0
+
+    # Initialize sensors and relay
     moisture = MoistureSensor()
     water_tank_fullness_sensor = Water_tank_fullness()
     water_pump_relay = Relay()
 
-    #initialize request client
+    # Initialize request client
     request_client = Request(url=send_data_url)
     
-
     if get_time_and_update_rtc():
         print("RTC synchronized successfully from FastAPI server.")
     else:
         print("Failed to synchronize RTC from FastAPI server. Using default/last known time.")
             
-
-    #initial data
-    data={}
-
     while True:
+        try:
+            current_time = time.ticks_ms()
 
-        current_time = time.ticks_ms()
+            # --- Main 20-minute check cycle ---
+            if time.ticks_diff(current_time, last_check_time) > CHECK_INTERVAL:
+                last_check_time = current_time
+                check_counter += 1
+                
+                data = {}
+                soil_moisture = moisture.moisture_get()
+                water_tank_fullness = water_tank_fullness_sensor.tank_fullnes()
+                
+                data["controller_id"] = CONTROLLER_ID
+                data["humidity"] = soil_moisture
+                data["water_tank_fullness"] = water_tank_fullness
+                data["water_pump_status"] = "off" 
+                data["water_pump_working_time"] = 0 
+                data["info"] = None 
 
+                should_log_data = False
 
-        if time.ticks_diff(current_time, last_run_base_foo) > base_interval:
-            
-            data={}
-            soil_moisture=moisture.moisture_get()
-            data["controller_id"] = CONTROLLER_ID
-            data["humidity"]=soil_moisture
-            water_tank_fullness=water_tank_fullness_sensor.tank_fullnes()
-            data["water_tank_fullness"]=water_tank_fullness
-            data["water_pump_status"] = "off" 
-            data["water_pump_working_time"] = 0 
-            data["info"] = None 
+                # --- Watering Logic ---
+                if water_tank_fullness > min_fullness and soil_moisture <= min_moisture:
+                    water_pump_relay.turn_on(water_pump_working_time)
+                    data["water_pump_status"] = "on"
+                    data["water_pump_working_time"] = water_pump_working_time
+                    print("Water pump activated.")
+                    should_log_data = True  # Log data immediately after watering
+                
+                elif water_tank_fullness < min_fullness:
+                    data["info"] = "Water tank is empty, cannot turn on the pump."
+                    print(data["info"])
+                
+                elif soil_moisture >= max_moisture:
+                    data["info"] = "The soil is over-moistured, check the pump"
+                    print(data["info"])
+                
+                # --- Data Logging Logic ---
+                if check_counter >= LOG_INTERVAL_COUNT:
+                    should_log_data = True
+                    check_counter = 0  # Reset counter
 
-            if water_tank_fullness > min_fullness and soil_moisture <= min_moisture:
-                water_pump_relay.turn_on(water_pump_working_time)
-                data["water_pump_status"]="on"
-                data["water_pump_working_time"]=water_pump_working_time
-                data["info"] = None
-            elif water_tank_fullness < min_fullness:
-                print("Water tank is empty, cannot turn on the pump.")
-                data["info"] = "Water tank is empty, cannot turn on the pump."
-                data["water_pump_status"]="off"
-                data["water_pump_working_time"]=0
-            elif soil_moisture >= max_moisture:
-                data["water_pump_status"]="off"
-                data["water_pump_working_time"]=0
-                print("The soil is overmastered, check the pump")
-            
-            try:
-                response = request_client.post(data=data)
-                if response and response.status_code == 200:
-                    print("Data sent successfully:", response.json())
+                if should_log_data:
+                    print("Sending data to server...")
+                    response = request_client.post(data=data)
+                    if response and response.status_code == 200:
+                        print("Data sent successfully:", response.json())
+                    else:
+                        print("Failed to send data or no response received.")
                 else:
-                    print("Failed to send data or no response received.")
-            except Exception as e:
-                print("Error during POST request:", e)
-            
-            last_run_base_foo = current_time
-        time.sleep_ms(100)
+                    print(f"Check completed. Soil moisture: {soil_moisture}%. Tank fullness: {water_tank_fullness}%. No data sent.")
+
+            # Sleep for a short time to keep the loop from running too fast
+            time.sleep(1)
+
+        except Exception as e:
+            print("An error occurred in the main loop:", e)
+            # Wait a bit before retrying to avoid rapid failure loops
+            time.sleep(60)
 
 
 
