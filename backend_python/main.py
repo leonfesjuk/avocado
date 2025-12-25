@@ -4,11 +4,11 @@ import os
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import Optional
-from resources.conections import add_humidity_data, create_db_engine
-from sqlalchemy.orm import Session
+from resources.conections import add_humidity_data
 from config.settings import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import datetime
 
 
 app = FastAPI()
@@ -26,10 +26,6 @@ class ControllerData(BaseModel):
     water_pump_status: str
     water_pump_working_time: int
     info: Optional[str] = None
-
-
-engine = create_db_engine(settings.database_url)
-
 
 
 app.add_middleware(
@@ -58,22 +54,19 @@ async def get_current_time():
 async def post_data(data: ControllerData):
     print(f"Received data: {data}")
     try:
-        with Session(engine) as session:
-            success = add_humidity_data(
-                session=session,
-                controller_id=data.controller_id,
-                humidity_value=int(data.humidity)
-            )
-            if success:
-                session.commit()
-                print("Data successfully committed to the database.")
-                return {"message": "Data saved successfully"}
-            else:
-                session.rollback()
-                print("Failed to add data, transaction rolled back.")
-                return {"message": "Failed to save data"}
+        # The decorator on add_humidity_data handles the session and commit
+        success = add_humidity_data(
+            controller_id=data.controller_id,
+            humidity_value=int(data.humidity)
+        )
+        if success:
+            print("Data processed by add_humidity_data.")
+            return {"message": "Data processing initiated successfully"}
+        else:
+            print("add_humidity_data returned False.")
+            return {"message": "Failed to process data"}
     except Exception as e:
-        print(f"An error occurred during database operation: {e}")
+        print(f"An error occurred when calling add_humidity_data: {e}")
         return {"message": "An error occurred", "error": str(e)}
 
 
