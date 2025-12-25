@@ -4,7 +4,8 @@ import os
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import Optional
-from resources.conections import add_humidity_data
+from resources.conections import add_humidity_data, create_db_engine
+from sqlalchemy.orm import Session
 from config.settings import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,8 +28,7 @@ class ControllerData(BaseModel):
     info: Optional[str] = None
 
 
-
-
+engine = create_db_engine(settings.database_url)
 
 
 
@@ -57,14 +57,28 @@ async def get_current_time():
 @app.post("/post_data")
 async def post_data(data: ControllerData):
     print(f"Received data: {data}")
-    return data
+    try:
+        with Session(engine) as session:
+            success = add_humidity_data(
+                session=session,
+                controller_id=data.controller_id,
+                humidity_value=int(data.humidity)
+            )
+            if success:
+                session.commit()
+                print("Data successfully committed to the database.")
+                return {"message": "Data saved successfully"}
+            else:
+                session.rollback()
+                print("Failed to add data, transaction rolled back.")
+                return {"message": "Failed to save data"}
+    except Exception as e:
+        print(f"An error occurred during database operation: {e}")
+        return {"message": "An error occurred", "error": str(e)}
 
 
 @app.get("/")
 async def test():
-
-    x = add_humidity_data(controller_id=1, humidity_value=44)
-    print(f"Data added to DB: {x}")
     html_content = """
     <!DOCTYPE html>
     <html>
